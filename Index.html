@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Kai y el Laberinto de las Divisiones</title>
+
+<style>
+body{
+  font-family: "Comic Sans MS", Arial;
+  background: linear-gradient(#0f2027,#203a43,#2c5364);
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+.game{
+  background: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  padding: 20px;
+  max-width: 420px;
+  margin: auto;
+}
+h1{margin-bottom:5px;}
+.story{
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+.operation{
+  font-size: 2.5em;
+  margin: 15px 0;
+}
+input{
+  font-size: 1.5em;
+  width: 80px;
+  text-align: center;
+  border-radius: 10px;
+  border: none;
+}
+button{
+  margin: 8px;
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+}
+.levels button{background:#ffd166;}
+.action{background:#06d6a0;}
+.message{
+  min-height: 30px;
+  font-size: 1.2em;
+}
+.stats{
+  margin-top:10px;
+  font-size:0.9em;
+}
+.medal{
+  font-size:1.3em;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🧙‍♂️ Kai y el Laberinto</h1>
+<p>Ayuda a Kai a abrir las puertas con divisiones</p>
+
+<div class="game">
+
+  <div class="story" id="story">
+    Kai entra al laberinto… una puerta aparece.
+  </div>
+
+  <div class="levels">
+    <button onclick="setLevel(1)">🟢 Fácil</button>
+    <button onclick="setLevel(2)">🟡 Medio</button>
+    <button onclick="setLevel(3)">🔴 Difícil</button>
+  </div>
+
+  <div class="operation" id="operation">6 ÷ 3 = ?</div>
+
+  <input type="number" id="answer">
+  <br>
+  <button class="action" onclick="check()">Abrir puerta</button>
+
+  <div class="message" id="message"></div>
+
+  <div class="stats">
+    ⏱️ Tiempo: <span id="time">60</span>s <br>
+    🚪 Puertas: <span id="score">0</span> <br>
+    🏆 Medalla: <span class="medal" id="medal">—</span>
+  </div>
+
+</div>
+
+<script>
+let level = 1;
+let score = 0;
+let time = 60;
+let timer;
+let num1, num2, correct;
+
+function speak(text){
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "es-ES";
+  speechSynthesis.speak(msg);
+}
+
+function setLevel(l){
+  level = l;
+  score = 0;
+  time = 60;
+  document.getElementById("score").textContent = score;
+  document.getElementById("medal").textContent = "—";
+  clearInterval(timer);
+  startTimer();
+  newChallenge();
+  speak("Nivel seleccionado. Kai avanza con cuidado.");
+}
+
+function startTimer(){
+  document.getElementById("time").textContent = time;
+  timer = setInterval(()=>{
+    time--;
+    document.getElementById("time").textContent = time;
+    if(time<=0){
+      clearInterval(timer);
+      speak("El tiempo terminó. Kai necesita entrenar más.");
+      document.getElementById("message").textContent =
+        "⏰ Tiempo terminado. Intenta otra vez.";
+    }
+  },1000);
+}
+
+function newChallenge(){
+  let max = level===1 ? 5 : level===2 ? 9 : 12;
+  num2 = Math.floor(Math.random()*max)+2;
+  correct = Math.floor(Math.random()*max)+2;
+  num1 = num2 * correct;
+  document.getElementById("operation").textContent =
+    `${num1} ÷ ${num2} = ?`;
+  document.getElementById("answer").value="";
+}
+
+function check(){
+  const ans = Number(document.getElementById("answer").value);
+  if(ans === correct){
+    score++;
+    document.getElementById("score").textContent = score;
+    document.getElementById("message").textContent =
+      "✨ ¡Correcto! Kai abre una puerta.";
+    speak("Correcto. Kai avanza.");
+    giveMedal();
+    newChallenge();
+  }else{
+    document.getElementById("message").textContent =
+      "❌ La puerta sigue cerrada. Intenta otra vez.";
+    speak("Intenta de nuevo.");
+  }
+}
+
+function giveMedal(){
+  if(score>=10) document.getElementById("medal").textContent="🥇 Oro";
+  else if(score>=5) document.getElementById("medal").textContent="🥈 Plata";
+  else if(score>=3) document.getElementById("medal").textContent="🥉 Bronce";
+}
+
+setLevel(1);
+</script>
+
+</body>
+</html>
